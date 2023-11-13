@@ -215,6 +215,24 @@
   - !type:TileNotBlocked
 
 - type: construction
+  name: directional wall
+  id: WallDirectional
+  graph: WallDirectional
+  startNode: start
+  targetNode: wallDirectional
+  category: construction-category-structures
+  description: A thin directional wall.
+  canBuildInImpassable: true
+  conditions:
+    - !type:EmptyOrWindowValidInTile
+    - !type:NoWindowsInTile
+  icon:
+    sprite: Structures/Windows/directional.rsi
+    state: window
+  objectType: Structure
+  placementMode: SnapgridCenter
+
+- type: construction
   name: grille
   id: Grille
   graph: Grille
