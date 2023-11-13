@@ -228,7 +228,7 @@
     - !type:NoWindowsInTile
   icon:
     sprite: Structures/Windows/directional.rsi
-    state: window
+    state: wall
   objectType: Structure
   placementMode: SnapgridCenter
 

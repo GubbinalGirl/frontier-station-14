@@ -196,8 +196,10 @@
       - Structure
   - type: Sprite
     sprite: Structures/Walls/directional.rsi
+    state: wall
   - type: Icon
     sprite: Structures/Walls/directional.rsi
+    state: wall
   - type: Construction
     graph: WallDirectional
     node: wallDirectional
@@ -214,9 +216,6 @@
             max: 1
       - !type:DoActsBehavior
         acts: [ "Destruction" ]
-  - type: IconSmooth
-    key: walls
-    base: meat
   - type: Fixtures
     fixtures:
       fix1:
@@ -227,7 +226,11 @@
         mask:
         - FullTileMask
         layer:
-        - GlassLayer
+        - WallLayer
+  - type: Airtight
+    noAirWhenFullyAirBlocked: false
+    airBlockedDirection:
+    - South
 
 - type: entity
   parent: BaseWall
