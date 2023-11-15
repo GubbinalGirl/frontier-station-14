@@ -180,26 +180,39 @@
     base: meat
 
 - type: entity
-  parent: BaseWall
+  parent: BaseStructure #Don't inherit from BaseWall so to avoid PlacementReplacement
   id: WallDirectional
   name: directional wall
   description: A directional wall.
   placement:
     mode: SnapgridCenter
     snap:
-    - Window
+    - Wall
   components:
+  - type: RangedDamageSound
+    soundGroups:
+      Brute:
+        collection:
+          MetalBulletImpact
+    soundTypes:
+      Heat:
+        collection:
+          MetalLaserImpact
   - type: Tag
     tags:
       - RCDDeconstructWhitelist
       - Wall
-      - ForceFixRotations
+      - Structure
   - type: Sprite
     sprite: Structures/Walls/directional.rsi
     state: wall
+    drawdepth: Walls
   - type: Icon
     sprite: Structures/Walls/directional.rsi
     state: wall
+  - type: Damageable
+    damageContainer: Inorganic
+    damageModifierSet: Metallic
   - type: Construction
     graph: WallDirectional
     node: wallDirectional
@@ -216,6 +229,8 @@
             max: 1
       - !type:DoActsBehavior
         acts: [ "Destruction" ]
+  - type: Physics
+    bodyType: Static
   - type: Fixtures
     fixtures:
       fix1:
@@ -233,6 +248,10 @@
     - South
   - type: Occluder
     boundingBox: "-0.50,-0.50,0.50,-0.36"
+  - type: StaticPrice
+    price: 25
+  - type: RadiationBlocker
+    resistance: 2
 
 - type: entity
   parent: BaseWall
