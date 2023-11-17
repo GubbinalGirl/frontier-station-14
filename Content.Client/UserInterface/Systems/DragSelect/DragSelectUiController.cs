@@ -12,6 +12,9 @@ public sealed class DragSelectUiController : UIController
     [Dependency] private readonly IEyeManager _eyeManager = default!;
     [Dependency] private readonly IInputManager _inputManager = default!;
 
+    //Need to store the ScreenCoords as well
+    private ScreenCoordinates? _curScreenStartCoords;
+    private ScreenCoordinates? _curScreenEndCoords;
 
     private MapCoordinates? _curStartCoords;
     private MapCoordinates? _curEndCoords;
@@ -24,6 +27,7 @@ public sealed class DragSelectUiController : UIController
         SubscribeLocalEvent<LocalPlayerDetachedEvent>(OnPlayerDetached);
         SubscribeLocalEvent<MouseButtonEventArgs>(OnMouseMove);
         SubscribeLocalEvent<MouseButtonEventArgs>(OnMouseButtonEvent);
+        SubscribeLocalEvent<MouseEnterLeaveEventArgs>(OnMouseEnterLeave);
     }
 
     private void OnMouseButtonEvent(MouseButtonEventArgs ev)
@@ -36,7 +40,10 @@ public sealed class DragSelectUiController : UIController
         {
             //It was pressed.
             _curStartCoords = _eyeManager.ScreenToMap(ev.Position);
+            _curScreenStartCoords = ev.Position;
+
             _curEndCoords = null;
+            _curScreenEndCoords = null;
             //Clear the selected objects
         }
         else
@@ -46,9 +53,18 @@ public sealed class DragSelectUiController : UIController
                 return;
 
             _curEndCoords = _eyeManager.ScreenToMap(ev.Position);
+            _curScreenEndCoords = ev.Position;
 
             GetSelectedObjects();
         }
+
+        _overlay.UpdateCoords(_curScreenStartCoords, ev.Position);
+    }
+
+    private void GetSelectedObjects()
+    {
+        //Do we select tiles or just entities?
+
     }
 
     private void OnMouseMove(MouseButtonEventArgs ev)
@@ -65,9 +81,14 @@ public sealed class DragSelectUiController : UIController
     {
         throw new NotImplementedException();
     }
-
-    private void GetSelectedObjects()
+    private void OnMouseEnterLeave(MouseEnterLeaveEventArgs ev)
     {
+        throw new NotImplementedException();
+    }
 
+    private void UpdateOverlay()
+    {
+        //The overlay needs to know screencoords, not mapcoords
+        //Its also not interested in the end position, only where the mouse is now.
     }
 }
