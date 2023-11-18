@@ -25,13 +25,20 @@ public sealed class DragSelectUiController : UIController
         _overlay = new Overlays.DragSelectOverlay();
         SubscribeLocalEvent<LocalPlayerAttachedEvent>(OnPlayerAttach);
         SubscribeLocalEvent<LocalPlayerDetachedEvent>(OnPlayerDetached);
-        SubscribeLocalEvent<MouseButtonEventArgs>(OnMouseMove);
+        SubscribeLocalEvent<MouseMoveEventArgs>(OnMouseMove);
         SubscribeLocalEvent<MouseButtonEventArgs>(OnMouseButtonEvent);
         SubscribeLocalEvent<MouseEnterLeaveEventArgs>(OnMouseEnterLeave);
+        SubscribeLocalEvent<InputEventArgs>(OnTestInput);
+    }
+
+    private void OnTestInput(InputEventArgs ev)
+    {
+        Logger.Debug("TEST");
     }
 
     private void OnMouseButtonEvent(MouseButtonEventArgs ev)
     {
+        Logger.Debug("OnMouseButtonEvent");
         if (ev.Button != Mouse.Button.Left)
             return;
 
@@ -77,8 +84,9 @@ public sealed class DragSelectUiController : UIController
         _overlay.Disable();
     }
 
-    private void OnMouseMove(MouseButtonEventArgs ev)
+    private void OnMouseMove(MouseMoveEventArgs ev)
     {
+        Logger.Debug("OnMoiseMove");
         //If the Left Button is not pressed then we don't care.
         if (!_inputManager.IsKeyDown(Keyboard.Key.MouseLeft))
             return;
@@ -88,6 +96,7 @@ public sealed class DragSelectUiController : UIController
 
     private void OnPlayerAttach(LocalPlayerAttachedEvent ev)
     {
+        Logger.Debug("OnPlayerAttach");
         Clear();
         _overlayManager.AddOverlay(_overlay);
     }
@@ -101,11 +110,5 @@ public sealed class DragSelectUiController : UIController
         //For now we just clear,
         //but it will be important for UX reasons to handle this more gracefully.
         Clear();
-    }
-
-    private void UpdateOverlay()
-    {
-        //The overlay needs to know screencoords, not mapcoords
-        //Its also not interested in the end position, only where the mouse is now.
     }
 }

@@ -17,14 +17,23 @@ public sealed class DragSelectOverlay : Overlay
             return;
 
         Box2 rect = new Box2(_start.Position, _end.Position);
+        Color color = new Color(0, 0, 200, 100);
+        args.WorldHandle.DrawRect(rect, color);
     }
 
     //The overlay needs to be updated at three times. When the LB is pressed, when its released,
     //and when the mouse is moved with LB down
-    public void UpdateCoords(ScreenCoordinates start, ScreenCoordinates end)
+    public void UpdateCoords(ScreenCoordinates? start, ScreenCoordinates? end)
     {
-        _start = start;
-        _end = end;
+        //This feels clunky, like it should be handled by the UiController
+        if (start == null || end == null)
+        {
+            Disable();
+            return;
+        }
+
+        _start = (ScreenCoordinates) start;
+        _end = (ScreenCoordinates) end;
 
         _enabled = true;
     }
