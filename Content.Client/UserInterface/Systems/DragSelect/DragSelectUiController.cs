@@ -67,23 +67,40 @@ public sealed class DragSelectUiController : UIController
 
     }
 
-    private void OnMouseMove(MouseButtonEventArgs ev)
+    private void Clear()
     {
-        throw new NotImplementedException();
+        _curStartCoords = null;
+        _curScreenStartCoords = null;
+        _curEndCoords = null;
+        _curScreenEndCoords = null;
+
+        _overlay.Disable();
     }
 
-    private void OnPlayerDetached(LocalPlayerDetachedEvent ev)
+    private void OnMouseMove(MouseButtonEventArgs ev)
     {
-        throw new NotImplementedException();
+        //If the Left Button is not pressed then we don't care.
+        if (!_inputManager.IsKeyDown(Keyboard.Key.MouseLeft))
+            return;
+
+        _overlay.UpdateCoords(_curScreenStartCoords, ev.Position);
     }
 
     private void OnPlayerAttach(LocalPlayerAttachedEvent ev)
     {
-        throw new NotImplementedException();
+        Clear();
+        _overlayManager.AddOverlay(_overlay);
+    }
+    private void OnPlayerDetached(LocalPlayerDetachedEvent ev)
+    {
+        _overlayManager.RemoveOverlay(_overlay);
+        Clear();
     }
     private void OnMouseEnterLeave(MouseEnterLeaveEventArgs ev)
     {
-        throw new NotImplementedException();
+        //For now we just clear,
+        //but it will be important for UX reasons to handle this more gracefully.
+        Clear();
     }
 
     private void UpdateOverlay()
