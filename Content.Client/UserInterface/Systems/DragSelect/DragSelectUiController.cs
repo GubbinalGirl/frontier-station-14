@@ -1,8 +1,12 @@
+using Content.Shared.Input;
 using Robust.Client.Graphics;
 using Robust.Client.Input;
 using Robust.Client.Player;
 using Robust.Client.UserInterface.Controllers;
+using Robust.Shared.Input;
+using Robust.Shared.Input.Binding;
 using Robust.Shared.Map;
+using Robust.Shared.Player;
 
 namespace Content.Client.UserInterface.Systems.DragSelect;
 
@@ -22,18 +26,20 @@ public sealed class DragSelectUiController : UIController
     private Overlays.DragSelectOverlay _overlay = default!;
     public override void Initialize()
     {
+        base.Initialize();
         _overlay = new Overlays.DragSelectOverlay();
         SubscribeLocalEvent<LocalPlayerAttachedEvent>(OnPlayerAttach);
         SubscribeLocalEvent<LocalPlayerDetachedEvent>(OnPlayerDetached);
         SubscribeLocalEvent<MouseMoveEventArgs>(OnMouseMove);
         SubscribeLocalEvent<MouseButtonEventArgs>(OnMouseButtonEvent);
         SubscribeLocalEvent<MouseEnterLeaveEventArgs>(OnMouseEnterLeave);
-        SubscribeLocalEvent<InputEventArgs>(OnTestInput);
     }
 
-    private void OnTestInput(InputEventArgs ev)
+    private bool HandleDragSelect(in PointerInputCmdHandler.PointerInputCmdArgs args)
     {
-        Logger.Debug("TEST");
+        Logger.Debug("YAY@!");
+
+        return false;
     }
 
     private void OnMouseButtonEvent(MouseButtonEventArgs ev)
@@ -99,11 +105,14 @@ public sealed class DragSelectUiController : UIController
         Logger.Debug("OnPlayerAttach");
         Clear();
         _overlayManager.AddOverlay(_overlay);
+
+        CommandBinds.Builder.Bind(EngineKeyFunctions.Use, new PointerInputCmdHandler(HandleDragSelect)).Register<DragSelectUiController>();
     }
     private void OnPlayerDetached(LocalPlayerDetachedEvent ev)
     {
         _overlayManager.RemoveOverlay(_overlay);
         Clear();
+        CommandBinds.Unregister<DragSelectUiController>();
     }
     private void OnMouseEnterLeave(MouseEnterLeaveEventArgs ev)
     {
