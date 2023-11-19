@@ -19,9 +19,17 @@ public sealed class SelectionBufferSystem : EntitySystem
     {
         _selectedEntities.UnionWith(entities);
     }
+    public void AddToSelection(EntityUid entity)
+    {
+        _selectedEntities.Add(entity);
+    }
 
     public void RemoveFromSelection(HashSet<EntityUid> entities)
     {
         _selectedEntities.ExceptWith(entities);
+    }
+    public void RemoveFromSelection(EntityUid entity)
+    {
+        _selectedEntities.Remove(entity);
     }
 }

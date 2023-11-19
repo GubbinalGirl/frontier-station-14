@@ -1,7 +1,9 @@
+using Content.Client.SelectionBuffer;
 using Robust.Client.ComponentTrees;
 using Robust.Client.Graphics;
 using Robust.Client.Input;
 using Robust.Client.Player;
+using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controllers;
 using Robust.Shared.Input;
 using Robust.Shared.Input.Binding;
@@ -22,6 +24,8 @@ public sealed class DragSelectUiController : UIController
     [Dependency] private readonly IEyeManager _eyeManager = default!;
     [Dependency] private readonly IMapManager _mapManager = default!;
     private SharedMapSystem MapSystem => _entityManager.System<SharedMapSystem>();
+
+    [UISystemDependency] private readonly SelectionBufferSystem _selectionBuffer = default!;
 
     /// <summary>
     /// The point on screen where the player first left clicked. It is not converted to MapCoordinates
@@ -107,6 +111,8 @@ public sealed class DragSelectUiController : UIController
 
         foreach (var e in entities)
         {
+            _selectionBuffer.AddToSelection(e.Uid);
+
             if (metadataQuery.TryGetComponent(e.Uid, out var component))
             {
                 Logger.Debug(string.Format("Entity name: {0}", component.EntityName));
