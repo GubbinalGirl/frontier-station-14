@@ -18,11 +18,7 @@ public sealed class DragSelectUiController : UIController
     [Dependency] private readonly IInputManager _inputManager = default!;
 
     //Need to store the ScreenCoords as well
-    private ScreenCoordinates? _curScreenStartCoords;
-    private ScreenCoordinates? _curScreenEndCoords;
-
-    private MapCoordinates? _curStartCoords;
-    private MapCoordinates? _curEndCoords;
+    private ScreenCoordinates? _curStartCoords;
 
     private Overlays.DragSelectOverlay _overlay = default!;
     public override void Initialize()
@@ -39,24 +35,20 @@ public sealed class DragSelectUiController : UIController
         if (args.State == BoundKeyState.Down)
         {
             //It was pressed.
-            _curStartCoords = _eyeManager.ScreenToMap(args.ScreenCoordinates);
-            _curScreenStartCoords = args.ScreenCoordinates;
+            _curStartCoords = args.ScreenCoordinates;
 
-            _curEndCoords = null;
-            _curScreenEndCoords = null;
             //Clear the selected objects
         }
         else
         {
             //It was released.
+
+            //If there are no start coords somehow then we bail.
             if (_curStartCoords == null)
-                return false ;
+                return false;
 
-            _curEndCoords = _eyeManager.ScreenToMap(args.ScreenCoordinates);
-            _curScreenEndCoords = args.ScreenCoordinates;
-
-            //Refactor to have the coords as params
-            GetSelectedObjects();
+            //Safe to cast to non-nullable as we just checked above
+            GetSelectedObjects((ScreenCoordinates) _curStartCoords, args.ScreenCoordinates);
 
             Clear();
         }
@@ -67,13 +59,13 @@ public sealed class DragSelectUiController : UIController
     public override void FrameUpdate(FrameEventArgs args)
     {
         //This is set when the Use action is pressed. If its null then we aren't drag selecting.
-        if (_curScreenStartCoords == null)
+        if (_curStartCoords == null)
             return;
 
-        _overlay.UpdateCoords(_curScreenStartCoords, _inputManager.MouseScreenPosition);
+        _overlay.UpdateCoords(_curStartCoords, _inputManager.MouseScreenPosition);
     }
 
-    private void GetSelectedObjects()
+    private void GetSelectedObjects(ScreenCoordinates start, ScreenCoordinates end)
     {
         //Do we select tiles or just entities?
 
@@ -82,21 +74,8 @@ public sealed class DragSelectUiController : UIController
     private void Clear()
     {
         _curStartCoords = null;
-        _curScreenStartCoords = null;
-        _curEndCoords = null;
-        _curScreenEndCoords = null;
 
         _overlay.Disable();
-    }
-
-    private void OnMouseMove(MouseMoveEventArgs ev)
-    {
-        Logger.Debug("OnMoiseMove");
-        //If the Left Button is not pressed then we don't care.
-        if (!_inputManager.IsKeyDown(Keyboard.Key.MouseLeft))
-            return;
-
-        _overlay.UpdateCoords(_curScreenStartCoords, ev.Position);
     }
 
     private void OnPlayerAttach(LocalPlayerAttachedEvent ev)
