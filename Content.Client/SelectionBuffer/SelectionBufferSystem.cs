@@ -1,3 +1,5 @@
+using Content.Shared.Friction;
+using Robust.Shared.Map;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,7 @@ namespace Content.Client.SelectionBuffer;
 public sealed class SelectionBufferSystem : EntitySystem
 {
     private HashSet<EntityUid> _selectedEntities = new HashSet<EntityUid>();
+    private HashSet<TileRef> _selectedTiles = new HashSet<TileRef>();
 
     public void ClearSelection()
     {
@@ -23,6 +26,10 @@ public sealed class SelectionBufferSystem : EntitySystem
     {
         _selectedEntities.Add(entity);
     }
+    public void AddToSelection(TileRef tile)
+    {
+        _selectedTiles.Add(tile);
+    }
 
     public void RemoveFromSelection(HashSet<EntityUid> entities)
     {
@@ -31,5 +38,9 @@ public sealed class SelectionBufferSystem : EntitySystem
     public void RemoveFromSelection(EntityUid entity)
     {
         _selectedEntities.Remove(entity);
+    }
+    public void RemoveFromSelection(TileRef tile)
+    {
+        _selectedTiles.Remove(tile);
     }
 }
