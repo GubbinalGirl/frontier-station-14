@@ -16,9 +16,13 @@ public sealed class DragSelectOverlay : Overlay
         if (!_enabled)
             return;
 
-        Box2 rect = new Box2(_start.Position, _end.Position);
+        UIBox2 rect = new UIBox2(_start.Position, _end.Position);
+
+        Logger.Debug(string.Format("_start: {0}, _end: {1}", _start.Position, _end.Position));
+
+        UIBox2 rect2 = new UIBox2(10, 10, 0, 0);
         Color color = new Color(0, 0, 200, 100);
-        args.DrawingHandle.DrawCircle(_start.Position, 100, color);
+        args.ScreenHandle.DrawRect(rect2, color);
     }
 
     //The overlay needs to be updated at three times. When the LB is pressed, when its released,

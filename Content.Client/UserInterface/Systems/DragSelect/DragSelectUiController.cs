@@ -34,8 +34,6 @@ public sealed class DragSelectUiController : UIController
 
     private bool HandleDragSelect(in PointerInputCmdHandler.PointerInputCmdArgs args)
     {
-        Logger.Debug("YAY@!");
-
         //Is it pressed or released? Check Keyboard.Key.MouseLeft
         if (args.State == BoundKeyState.Down)
         {
@@ -55,6 +53,8 @@ public sealed class DragSelectUiController : UIController
 
             _curEndCoords = _eyeManager.ScreenToMap(args.ScreenCoordinates);
             _curScreenEndCoords = args.ScreenCoordinates;
+
+            //Disable overlay
 
             GetSelectedObjects();
         }
