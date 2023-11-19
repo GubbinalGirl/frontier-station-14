@@ -16,8 +16,6 @@ public sealed class DragSelectOverlay : Overlay
         if (!_enabled)
             return;
 
-        Logger.Debug(string.Format("_start: {0}, _end: {1}", _start.Position, _end.Position));
-
         UIBox2 rect = new UIBox2(_start.Position, _end.Position);
         Color color = new Color(0, 0, 200, 100);
         args.ScreenHandle.DrawRect(rect, color);

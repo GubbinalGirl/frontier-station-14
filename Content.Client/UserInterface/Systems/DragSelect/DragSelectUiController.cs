@@ -39,7 +39,7 @@ public sealed class DragSelectUiController : UIController
 
             //Clear the selected objects
         }
-        else
+        else if (args.State == BoundKeyState.Up)
         {
             //It was released.
 
@@ -83,7 +83,9 @@ public sealed class DragSelectUiController : UIController
         Clear();
         _overlayManager.AddOverlay(_overlay);
 
-        CommandBinds.Builder.Bind(EngineKeyFunctions.Use, new PointerInputCmdHandler(HandleDragSelect)).Register<DragSelectUiController>();
+        //We do NOT want to ignoreUp.
+        CommandBinds.Builder.Bind(EngineKeyFunctions.Use, new PointerInputCmdHandler(HandleDragSelect, false))
+            .Register<DragSelectUiController>();
     }
     private void OnPlayerDetached(LocalPlayerDetachedEvent ev)
     {
