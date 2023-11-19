@@ -100,12 +100,18 @@ public sealed class DragSelectUiController : UIController
 
     private void GetSelectedTiles(MapCoordinates start, MapCoordinates end)
     {
+        //TODO: This is not working when the selection is not done from top left to bottom right
         if (_mapManager.TryFindGridAt(start.MapId, start.Position, out var gridUid, out var mapGrid))
         {
             Box2 box = new Box2(start.Position, end.Position);
             //We do not want to ignore empty tiles
             var tileRefs = MapSystem.GetLocalTilesIntersecting(gridUid, mapGrid, box, false);
             Logger.Debug(string.Format("Count of tileRefs: {0}", tileRefs.Count()));
+
+            foreach (var t in tileRefs)
+            {
+                Logger.Debug(string.Format("{0}", t.ToString()));
+            }
         }
     }
 
