@@ -7,6 +7,7 @@ using Robust.Shared.Input;
 using Robust.Shared.Input.Binding;
 using Robust.Shared.Map;
 using Robust.Shared.Player;
+using Robust.Shared.Timing;
 
 namespace Content.Client.UserInterface.Systems.DragSelect;
 
@@ -54,14 +55,22 @@ public sealed class DragSelectUiController : UIController
             _curEndCoords = _eyeManager.ScreenToMap(args.ScreenCoordinates);
             _curScreenEndCoords = args.ScreenCoordinates;
 
-            //Disable overlay
-
+            //Refactor to have the coords as params
             GetSelectedObjects();
+
+            Clear();
         }
 
-        _overlay.UpdateCoords(_curScreenStartCoords, args.ScreenCoordinates);
-
         return false;
+    }
+
+    public override void FrameUpdate(FrameEventArgs args)
+    {
+        //This is set when the Use action is pressed. If its null then we aren't drag selecting.
+        if (_curScreenStartCoords == null)
+            return;
+
+        _overlay.UpdateCoords(_curScreenStartCoords, _inputManager.MouseScreenPosition);
     }
 
     private void GetSelectedObjects()
@@ -92,7 +101,6 @@ public sealed class DragSelectUiController : UIController
 
     private void OnPlayerAttach(LocalPlayerAttachedEvent ev)
     {
-        Logger.Debug("OnPlayerAttach");
         Clear();
         _overlayManager.AddOverlay(_overlay);
 
