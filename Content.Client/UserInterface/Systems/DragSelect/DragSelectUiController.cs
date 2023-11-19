@@ -7,6 +7,7 @@ using Robust.Shared.Input;
 using Robust.Shared.Input.Binding;
 using Robust.Shared.Map;
 using Robust.Shared.Timing;
+using System.Linq;
 
 namespace Content.Client.UserInterface.Systems.DragSelect;
 
@@ -16,15 +17,18 @@ public sealed class DragSelectUiController : UIController
     [Dependency] private readonly IInputManager _inputManager = default!;
     [Dependency] private readonly IEntityManager _entityManager = default!;
     [Dependency] private readonly IEyeManager _eyeManager = default!;
+    [Dependency] private readonly IMapManager _mapManager = default!;
+    private SharedMapSystem MapSystem => _entityManager.System<SharedMapSystem>();
 
-    //Need to store the ScreenCoords as well
     private ScreenCoordinates? _curStartCoords;
 
     private Overlays.DragSelectOverlay _overlay = default!;
     public override void Initialize()
     {
         base.Initialize();
+
         _overlay = new Overlays.DragSelectOverlay();
+
         SubscribeLocalEvent<LocalPlayerAttachedEvent>(OnPlayerAttach);
         SubscribeLocalEvent<LocalPlayerDetachedEvent>(OnPlayerDetached);
     }
@@ -36,20 +40,19 @@ public sealed class DragSelectUiController : UIController
         {
             //It was pressed.
             _curStartCoords = args.ScreenCoordinates;
-
-            //Clear the selected objects
         }
         else if (args.State == BoundKeyState.Up)
         {
             //It was released.
 
-            //If there are no start coords somehow then we bail.
+            //If there are no start coords somehow then we bail. Not sure if this would ever happen
             if (_curStartCoords == null)
                 return false;
 
             //Safe to cast to non-nullable as we just checked above
             GetSelectedObjects((ScreenCoordinates) _curStartCoords, args.ScreenCoordinates);
 
+            //Selection is complete so we disable the overlay
             Clear();
         }
 
@@ -67,7 +70,6 @@ public sealed class DragSelectUiController : UIController
 
     private void GetSelectedObjects(ScreenCoordinates start, ScreenCoordinates end)
     {
-        //Do we select tiles or just entities?
         // Find all the entities intersecting our click
 
         //Covert to MapCoordinates
@@ -93,6 +95,18 @@ public sealed class DragSelectUiController : UIController
             }
         }
 
+        GetSelectedTiles(startMC, endMC);
+    }
+
+    private void GetSelectedTiles(MapCoordinates start, MapCoordinates end)
+    {
+        if (_mapManager.TryFindGridAt(start.MapId, start.Position, out var gridUid, out var mapGrid))
+        {
+            Box2 box = new Box2(start.Position, end.Position);
+            //We do not want to ignore empty tiles
+            var tileRefs = MapSystem.GetLocalTilesIntersecting(gridUid, mapGrid, box, false);
+            Logger.Debug(string.Format("Count of tileRefs: {0}", tileRefs.Count()));
+        }
     }
 
     private void Clear()
