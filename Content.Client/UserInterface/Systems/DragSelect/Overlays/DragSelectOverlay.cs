@@ -18,7 +18,7 @@ public sealed class DragSelectOverlay : Overlay
 
         Box2 rect = new Box2(_start.Position, _end.Position);
         Color color = new Color(0, 0, 200, 100);
-        args.WorldHandle.DrawRect(rect, color);
+        args.DrawingHandle.DrawCircle(_start.Position, 100, color);
     }
 
     //The overlay needs to be updated at three times. When the LB is pressed, when its released,

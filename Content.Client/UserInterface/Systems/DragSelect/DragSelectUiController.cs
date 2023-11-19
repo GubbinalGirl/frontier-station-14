@@ -30,30 +30,18 @@ public sealed class DragSelectUiController : UIController
         _overlay = new Overlays.DragSelectOverlay();
         SubscribeLocalEvent<LocalPlayerAttachedEvent>(OnPlayerAttach);
         SubscribeLocalEvent<LocalPlayerDetachedEvent>(OnPlayerDetached);
-        SubscribeLocalEvent<MouseMoveEventArgs>(OnMouseMove);
-        SubscribeLocalEvent<MouseButtonEventArgs>(OnMouseButtonEvent);
-        SubscribeLocalEvent<MouseEnterLeaveEventArgs>(OnMouseEnterLeave);
     }
 
     private bool HandleDragSelect(in PointerInputCmdHandler.PointerInputCmdArgs args)
     {
         Logger.Debug("YAY@!");
 
-        return false;
-    }
-
-    private void OnMouseButtonEvent(MouseButtonEventArgs ev)
-    {
-        Logger.Debug("OnMouseButtonEvent");
-        if (ev.Button != Mouse.Button.Left)
-            return;
-
         //Is it pressed or released? Check Keyboard.Key.MouseLeft
-        if (_inputManager.IsKeyDown(Keyboard.Key.MouseLeft))
+        if (args.State == BoundKeyState.Down)
         {
             //It was pressed.
-            _curStartCoords = _eyeManager.ScreenToMap(ev.Position);
-            _curScreenStartCoords = ev.Position;
+            _curStartCoords = _eyeManager.ScreenToMap(args.ScreenCoordinates);
+            _curScreenStartCoords = args.ScreenCoordinates;
 
             _curEndCoords = null;
             _curScreenEndCoords = null;
@@ -63,15 +51,17 @@ public sealed class DragSelectUiController : UIController
         {
             //It was released.
             if (_curStartCoords == null)
-                return;
+                return false ;
 
-            _curEndCoords = _eyeManager.ScreenToMap(ev.Position);
-            _curScreenEndCoords = ev.Position;
+            _curEndCoords = _eyeManager.ScreenToMap(args.ScreenCoordinates);
+            _curScreenEndCoords = args.ScreenCoordinates;
 
             GetSelectedObjects();
         }
 
-        _overlay.UpdateCoords(_curScreenStartCoords, ev.Position);
+        _overlay.UpdateCoords(_curScreenStartCoords, args.ScreenCoordinates);
+
+        return false;
     }
 
     private void GetSelectedObjects()
@@ -113,11 +103,5 @@ public sealed class DragSelectUiController : UIController
         _overlayManager.RemoveOverlay(_overlay);
         Clear();
         CommandBinds.Unregister<DragSelectUiController>();
-    }
-    private void OnMouseEnterLeave(MouseEnterLeaveEventArgs ev)
-    {
-        //For now we just clear,
-        //but it will be important for UX reasons to handle this more gracefully.
-        Clear();
     }
 }
