@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using Robust.Shared.Serialization;
+using Robust.Shared.Network;
 
 namespace Content.Shared.SelectionBuffer;
 
@@ -11,37 +13,53 @@ public abstract class SharedSelectionBufferSystem : EntitySystem
 {
     [Dependency] private readonly IEntityManager _entityManager = default!;
     [Dependency] private readonly SharedTransformSystem _transSystem = default!;
-
+    [Dependency] private readonly INetManager _netMan = default!;
     public override void Initialize()
     {
+        base.Initialize();
 
+        SubscribeNetworkEvent<SelectionTranslateMessage>(OnTranslateSelection);
     }
 
-    public abstract bool TranslateSelection(Vector2 direction);
-
-    /// <summary>
-    /// Translates (moves) the selected objects by direction units. Returns true on success.
-    /// </summary>
-    /// <returns></returns>
-    public bool TranslateSelection(HashSet<EntityUid> selection, Vector2 direction)
+    private void OnTranslateSelection(SelectionTranslateMessage ev)
     {
-        //Get the transformcomponent of each one.
-        //Is there a proper way to try and move stuff?
-        //What about anchored objects? APCs, wires?
+        if (!_netMan.IsServer)
+            return;
 
-        var transformQuery = _entityManager.GetEntityQuery<TransformComponent>();
-
-        foreach (var e in selection)
+        foreach (var e in ev.SelectedObjects)
         {
-            if (transformQuery.TryGetComponent(e, out var trans))
-            {
-                var translated = trans.Coordinates.Offset(direction);
+            var trans = Transform(e);
+            var translated = trans.Coordinates.Offset(ev.Direction);
 
-                //_transSystem.AttachToGridOrMap(e, trans);
-                _transSystem.SetCoordinates(e, translated);
-            }
+            //_transSystem.AttachToGridOrMap(e, trans);
+            _transSystem.SetCoordinates(e, translated);
         }
+    }
+}
 
-        return true;
+public abstract class SelectionMessage : EntityEventArgs
+{
+    //Need to re-work this with the correct way to address entities over network
+    public HashSet<EntityUid> SelectedObjects;
+
+    public SelectionMessage(HashSet<EntityUid> selectedObjects)
+    {
+        SelectedObjects = selectedObjects;
+    }
+}
+
+public sealed class SelectionDeleteMessage : SelectionMessage
+{
+    public SelectionDeleteMessage(HashSet<EntityUid> selectedObjects) : base(selectedObjects)
+    {
+    }
+}
+
+public sealed class SelectionTranslateMessage : SelectionMessage
+{
+    public Vector2 Direction;
+    public SelectionTranslateMessage(HashSet<EntityUid> selectedObjects, Vector2 direction) : base(selectedObjects)
+    {
+        Direction = direction;
     }
 }

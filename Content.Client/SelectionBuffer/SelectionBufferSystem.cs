@@ -19,9 +19,9 @@ public sealed class SelectionBufferSystem : SharedSelectionBufferSystem
     private HashSet<EntityUid> _selectedEntities = new HashSet<EntityUid>();
     private HashSet<TileRef> _selectedTiles = new HashSet<TileRef>();
 
-    public override bool TranslateSelection(Vector2 direction)
+    public void TranslateSelection(Vector2 direction)
     {
-        return TranslateSelection(_selectedEntities, direction);
+        RaiseNetworkEvent(new SelectionTranslateMessage(_selectedEntities, direction));
     }
 
     public void PrettyPrintBuffer()
