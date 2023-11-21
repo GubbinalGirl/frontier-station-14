@@ -18,13 +18,15 @@ public abstract class SharedSelectionBufferSystem : EntitySystem
     {
         base.Initialize();
 
-        SubscribeNetworkEvent<SelectionTranslateMessage>(OnTranslateSelection);
+        SubscribeNetworkEvent<SelectionTranslateEvent>(OnTranslateSelection);
     }
 
-    private void OnTranslateSelection(SelectionTranslateMessage ev)
+    private void OnTranslateSelection(SelectionTranslateEvent ev)
     {
         if (!_netMan.IsServer)
             return;
+
+        Logger.Debug("OnTranslateSelection running on server.");
 
         foreach (var e in ev.SelectedObjects)
         {
@@ -38,25 +40,21 @@ public abstract class SharedSelectionBufferSystem : EntitySystem
     }
 }
 
-public abstract class SelectionMessage : EntityEventArgs
+[Serializable, NetSerializable]
+public abstract class SelectionEvent : EntityEventArgs
 {
     //Need to re-work this with the correct way to address entities over network
-    public HashSet<NetEntity> SelectedObjects;
-
-    public SelectionMessage(HashSet<NetEntity> selectedObjects)
-    {
-        SelectedObjects = selectedObjects;
-    }
+    public List<NetEntity> SelectedObjects;
 
     /// <summary>
     /// Allows us to more easily create these events.
     /// </summary>
     /// <param name="selectedObjects"></param>
-    public SelectionMessage(HashSet<EntityUid> selectedObjects)
+    public SelectionEvent(HashSet<EntityUid> selectedObjects)
     {
         var entManager = IoCManager.Resolve<IEntityManager>();
 
-        SelectedObjects = new HashSet<NetEntity>(selectedObjects.Count());
+        SelectedObjects = new List<NetEntity>(selectedObjects.Count());
 
         foreach (var e in selectedObjects)
         {
@@ -65,17 +63,19 @@ public abstract class SelectionMessage : EntityEventArgs
     }
 }
 
-public sealed class SelectionDeleteMessage : SelectionMessage
+[Serializable, NetSerializable]
+public sealed class SelectionDeleteEvent : SelectionEvent
 {
-    public SelectionDeleteMessage(HashSet<EntityUid> selectedObjects) : base(selectedObjects)
+    public SelectionDeleteEvent(HashSet<EntityUid> selectedObjects) : base(selectedObjects)
     {
     }
 }
 
-public sealed class SelectionTranslateMessage : SelectionMessage
+[Serializable, NetSerializable]
+public sealed class SelectionTranslateEvent : SelectionEvent
 {
     public Vector2 Direction;
-    public SelectionTranslateMessage(HashSet<EntityUid> selectedObjects, Vector2 direction) : base(selectedObjects)
+    public SelectionTranslateEvent(HashSet<EntityUid> selectedObjects, Vector2 direction) : base(selectedObjects)
     {
         Direction = direction;
     }

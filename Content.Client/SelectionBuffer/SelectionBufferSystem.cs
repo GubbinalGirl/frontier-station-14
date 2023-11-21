@@ -21,7 +21,8 @@ public sealed class SelectionBufferSystem : SharedSelectionBufferSystem
 
     public void TranslateSelection(Vector2 direction)
     {
-        RaiseNetworkEvent(new SelectionTranslateMessage(_selectedEntities, direction));
+        Logger.Debug("Raising network message.");
+        RaiseNetworkEvent(new SelectionTranslateEvent(_selectedEntities, direction));
     }
 
     public void PrettyPrintBuffer()

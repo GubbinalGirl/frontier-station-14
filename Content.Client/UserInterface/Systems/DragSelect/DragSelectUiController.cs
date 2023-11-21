@@ -139,7 +139,15 @@ public sealed class DragSelectUiController : UIController
         }
 
         _selectionBuffer.PrettyPrintBuffer();
-        _selectionBuffer.TranslateSelection(new System.Numerics.Vector2(4, 4));
+
+        try
+        {
+            _selectionBuffer.TranslateSelection(new System.Numerics.Vector2(4, 4));
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e.ToString());
+        }
     }
 
     /// <summary>
