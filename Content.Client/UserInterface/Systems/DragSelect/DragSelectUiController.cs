@@ -52,6 +52,7 @@ public sealed class DragSelectUiController : UIController
         {
             //It was pressed.
             _curStartCoords = args.ScreenCoordinates;
+            _selectionBuffer.ClearSelection();
         }
         else if (args.State == BoundKeyState.Up)
         {
@@ -68,7 +69,7 @@ public sealed class DragSelectUiController : UIController
             Clear();
         }
 
-        return false;
+        return true;
     }
 
     /// <summary>
@@ -134,7 +135,6 @@ public sealed class DragSelectUiController : UIController
             foreach (var t in tileRefs)
             {
                 _selectionBuffer.AddToSelection(t);
-                Logger.Debug(string.Format("{0}", t.ToString()));
             }
         }
 
@@ -150,8 +150,6 @@ public sealed class DragSelectUiController : UIController
         _curStartCoords = null;
 
         _overlay.Disable();
-
-        _selectionBuffer.ClearSelection();
     }
 
     private void OnPlayerAttach(LocalPlayerAttachedEvent ev)
