@@ -28,11 +28,12 @@ public abstract class SharedSelectionBufferSystem : EntitySystem
 
         foreach (var e in ev.SelectedObjects)
         {
-            var trans = Transform(e);
+            var euid = _entityManager.GetEntity(e);
+            var trans = Transform(euid);
             var translated = trans.Coordinates.Offset(ev.Direction);
 
             //_transSystem.AttachToGridOrMap(e, trans);
-            _transSystem.SetCoordinates(e, translated);
+            _transSystem.SetCoordinates(euid, translated);
         }
     }
 }
@@ -40,11 +41,27 @@ public abstract class SharedSelectionBufferSystem : EntitySystem
 public abstract class SelectionMessage : EntityEventArgs
 {
     //Need to re-work this with the correct way to address entities over network
-    public HashSet<EntityUid> SelectedObjects;
+    public HashSet<NetEntity> SelectedObjects;
 
-    public SelectionMessage(HashSet<EntityUid> selectedObjects)
+    public SelectionMessage(HashSet<NetEntity> selectedObjects)
     {
         SelectedObjects = selectedObjects;
+    }
+
+    /// <summary>
+    /// Allows us to more easily create these events.
+    /// </summary>
+    /// <param name="selectedObjects"></param>
+    public SelectionMessage(HashSet<EntityUid> selectedObjects)
+    {
+        var entManager = IoCManager.Resolve<IEntityManager>();
+
+        SelectedObjects = new HashSet<NetEntity>(selectedObjects.Count());
+
+        foreach (var e in selectedObjects)
+        {
+            SelectedObjects.Add(entManager.GetNetEntity(e));
+        }
     }
 }
 
