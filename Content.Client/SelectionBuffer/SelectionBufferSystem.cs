@@ -1,4 +1,5 @@
 using Content.Shared.Friction;
+using Content.Shared.SelectionBuffer;
 using Robust.Client.GameObjects;
 using Robust.Shared.Map;
 using System;
@@ -10,37 +11,17 @@ using System.Threading.Tasks;
 
 namespace Content.Client.SelectionBuffer;
 
-public sealed class SelectionBufferSystem : EntitySystem
+public sealed class SelectionBufferSystem : SharedSelectionBufferSystem
 {
     [Dependency] private readonly IEntityManager _entityManager = default!;
-    [Dependency] private readonly TransformSystem _transSystem = default!;
+    [Dependency] private readonly SharedTransformSystem _transSystem = default!;
 
     private HashSet<EntityUid> _selectedEntities = new HashSet<EntityUid>();
     private HashSet<TileRef> _selectedTiles = new HashSet<TileRef>();
 
-    /// <summary>
-    /// Translates (moves) the selected objects by direction units. Returns true on success.
-    /// </summary>
-    /// <returns></returns>
-    public bool TranslateSelection(Vector2 direction)
+    public override bool TranslateSelection(Vector2 direction)
     {
-        //Get the transformcomponent of each one.
-        //Is there a proper way to try and move stuff?
-        //What about anchored objects? APCs, wires?
-
-        var transformQuery = _entityManager.GetEntityQuery<TransformComponent>();
-
-        foreach (var e in _selectedEntities)
-        {
-            if (transformQuery.TryGetComponent(e, out var trans))
-            {
-                var translated = trans.MapPosition.Position + direction;
-
-                _transSystem.SetWorldPosition(e, translated);
-            }
-        }
-
-        return false;
+        return TranslateSelection(_selectedEntities, direction);
     }
 
     public void PrettyPrintBuffer()
