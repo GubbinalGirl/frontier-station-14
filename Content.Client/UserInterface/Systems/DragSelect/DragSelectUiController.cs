@@ -103,20 +103,9 @@ public sealed class DragSelectUiController : UIController
         var spriteTree = _entityManager.EntitySysManager.GetEntitySystem<SpriteTreeSystem>();
         var entities = spriteTree.QueryAabb(startMC.MapId, rect);
 
-        //Print out the names of the selected entities for debug purposes.
-        Logger.Debug(string.Format("Count: {0}", entities.Count));
-
-        //We get the entity name from the metadata component.
-        var metadataQuery = _entityManager.GetEntityQuery<MetaDataComponent>();
-
         foreach (var e in entities)
         {
             _selectionBuffer.AddToSelection(e.Uid);
-
-            if (metadataQuery.TryGetComponent(e.Uid, out var component))
-            {
-                Logger.Debug(string.Format("Entity name: {0}", component.EntityName));
-            }
         }
 
         GetSelectedTiles(startMC, endMC);
@@ -148,6 +137,9 @@ public sealed class DragSelectUiController : UIController
                 Logger.Debug(string.Format("{0}", t.ToString()));
             }
         }
+
+        _selectionBuffer.PrettyPrintBuffer();
+        _selectionBuffer.TranslateSelection(new System.Numerics.Vector2(0, 0.5f));
     }
 
     /// <summary>
