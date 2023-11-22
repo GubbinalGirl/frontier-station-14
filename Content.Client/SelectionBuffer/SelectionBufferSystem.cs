@@ -1,13 +1,6 @@
-using Content.Shared.Friction;
 using Content.Shared.SelectionBuffer;
-using Robust.Client.GameObjects;
 using Robust.Shared.Map;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Content.Client.SelectionBuffer;
 
@@ -21,7 +14,6 @@ public sealed class SelectionBufferSystem : SharedSelectionBufferSystem
 
     public void TranslateSelection(Vector2 direction)
     {
-        Logger.Debug("Raising network message.");
         RaiseNetworkEvent(new SelectionTranslateEvent(_selectedEntities, direction));
     }
 

@@ -28,6 +28,11 @@ public sealed class DragSelectUiController : UIController
     [UISystemDependency] private readonly SelectionBufferSystem _selectionBuffer = default!;
 
     /// <summary>
+    /// Tracks the various options that effect selection.
+    /// </summary>
+    private DragSelectOptions _selectionOptions;
+
+    /// <summary>
     /// The point on screen where the player first left clicked. It is not converted to MapCoordinates
     /// until the Use button is released so that the selection box can "move" with the player.
     /// </summary>
@@ -140,6 +145,7 @@ public sealed class DragSelectUiController : UIController
 
         _selectionBuffer.PrettyPrintBuffer();
 
+        //This try/catch only exists because I'm using TranslateSelection in a janky debug way
         try
         {
             _selectionBuffer.TranslateSelection(new System.Numerics.Vector2(4, 4));
@@ -174,5 +180,18 @@ public sealed class DragSelectUiController : UIController
         _overlayManager.RemoveOverlay(_overlay);
         Clear();
         CommandBinds.Unregister<DragSelectUiController>();
+    }
+}
+
+public struct DragSelectOptions
+{
+    public bool DoSelectTiles = false;
+    public bool DoSelectFixtures = false;
+    public bool DoSelectPipes = false;
+    public bool DoSelectWires = false;
+    public bool DoSelectItems = true;
+
+    public DragSelectOptions()
+    {
     }
 }
